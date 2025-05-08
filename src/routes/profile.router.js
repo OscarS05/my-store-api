@@ -27,7 +27,7 @@ router.get('/my-user',
     try {
       const userPayload = req.user;
       const user = await userService.findOne(userPayload.sub);
-      res.json(user);
+      res.status(200).json(user);
     } catch (error) {
       next(error);
     }

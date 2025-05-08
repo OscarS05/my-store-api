@@ -3,7 +3,7 @@ const request = require('supertest');
 const createApp = require('../src/app');
 const { models } = require('../src/db/sequelize');
 
-describe('tests for path /users', () => {
+describe('tests for /users path', () => {
   let app = null;
   let server = null;
   let api = null;

@@ -8,14 +8,19 @@ module.exports = {
       queryInterface = queryInterface.context
     }
 
-    const password = 'admin123';
-    const hash = await bcrypt.hash(password, 10);
+    const hash = (password) => bcrypt.hash(password, 10);
 
     return queryInterface.bulkInsert(USER_TABLE, [
       {
         email: 'admin@mail.com',
-        password: hash,
+        password: await hash('admin123'),
         role: 'admin',
+        created_at: new Date(),
+      },
+      {
+        email: 'customer@mail.com',
+        password: await hash('customer123'),
+        role: 'customer',
         created_at: new Date(),
       },
     ]);

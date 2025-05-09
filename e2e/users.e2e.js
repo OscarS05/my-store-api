@@ -2,16 +2,19 @@ const request = require('supertest');
 
 const createApp = require('../src/app');
 const { models } = require('../src/db/sequelize');
+const { upSeed, downSeed } = require('./utils/umzug');
 
 describe('tests for /users path', () => {
   let app = null;
   let server = null;
   let api = null;
 
-  beforeAll(() => {
+  beforeAll(async () => {
     app = createApp();
     server = app.listen(9000);
     api = request(app);
+
+    await upSeed();
   });
 
   describe('GET /users/{id}', () => {
@@ -51,6 +54,22 @@ describe('tests for /users path', () => {
       expect(statusCode).toEqual(400);
       expect(body.message).toMatch(/email/);
     });
+
+    test('Should return a new user', async () => {
+      const inputData = {
+        email: "juanita@email.com",
+        password: "Passw0rd@"
+      };
+
+      const { statusCode, body } = await api.post('/api/v1/users').send(inputData);
+      expect(statusCode).toEqual(201);
+
+      // Check db
+      const user = await models.User.findByPk(body.id);
+      expect(user).toBeTruthy();
+      expect(user.role).toEqual('admin');
+      expect(user.email).toEqual(inputData.email);
+    });
   });
 
   describe('PATCH /users', () => {
@@ -61,7 +80,8 @@ describe('tests for /users path', () => {
 
   });
 
-  afterAll(() => {
+  afterAll(async () => {
+    await downSeed();
     server.close(); //Cerrar el servidor es una buena práctica
   });
 });
